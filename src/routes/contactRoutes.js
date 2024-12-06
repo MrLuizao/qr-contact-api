@@ -19,14 +19,17 @@ router.post('/contact', async (req, res) => {
     // Generar QR
     const qrCodeData = await generateContactQR(req.body);
 
-    // Guardar en Firestore
-    await saveContactToFirestore(req.body, qrCodeData);
-    
+    // Guardar los datos en Firestore
+    const saveResult = await saveContactToFirestore(req.body, qrCodeData);
+    if (!saveResult.success) {
+      return res.status(400).json({ message: saveResult.message });
+    }
+
     // Enviar correo
     await sendContactEmail(req.body, qrCodeData);
 
     res.status(200).json({ 
-      message: 'Contacto procesado exitosamente', 
+      message: 'Pronto nos pondremos en contacto', 
       qrCode: qrCodeData 
     });
   } catch (error) {

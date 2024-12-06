@@ -16,7 +16,7 @@ const serviceAccount = {
   client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
   universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN  
 };
-// const serviceAccount = require('../config/key-firebase.json'); loval variables config
+// const serviceAccount = require('../config/key-firebase.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -43,12 +43,31 @@ async function generateContactQR(contactData) {
   return await QRCode.toDataURL(qrText);
 }
 
-// Guardar contacto en Firestore
+// Verificar si el correo ya existe
+async function isEmailRegistered(email) {
+  const snapshot = await db
+    .collection('registered-users')
+    .where('email', '==', email)
+    .get();
+  return !snapshot.empty; // Devuelve `true` si hay resultados
+}
+
+// Guardar contacto en Firestore con validación
 async function saveContactToFirestore(contactData, qrCodeData) {
   const { empresa, contacto, telefono, email } = contactData;
 
+  // Verificar si el correo ya existe
+  const emailExists = await isEmailRegistered(email);
+  if (emailExists) {
+    return {
+      success: false,
+      message: `El correo ${email} ya está registrado.`,
+    };
+  }
+
+  // Si no existe, guarda los datos
   const docRef = db.collection('registered-users').doc();
-  return await docRef.set({
+  await docRef.set({
     empresa,
     contacto,
     telefono,
@@ -56,6 +75,11 @@ async function saveContactToFirestore(contactData, qrCodeData) {
     qrCodeData,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
+
+  return {
+    success: true,
+    message: 'Contacto guardado exitosamente.',
+  };
 }
 
 // Enviar correo electrónico
