@@ -28,8 +28,8 @@ const db = admin.firestore();
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: GMAIL_USER,
-    pass: GMAIL_APP_PASSWORD
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD
     // user: 'luisonvazquez7@gmail.com',
     // pass: 'cvvbvpnopxeaishw'
   }
