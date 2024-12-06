@@ -1,5 +1,9 @@
 const express = require('express');
-const { generateContactQR, sendContactEmail } = require('../controllers/contactController');
+const { 
+  generateContactQR, 
+  sendContactEmail, 
+  saveContactToFirestore 
+} = require('../controllers/contactController');
 
 const router = express.Router();
 
@@ -14,6 +18,9 @@ router.post('/contact', async (req, res) => {
   try {
     // Generar QR
     const qrCodeData = await generateContactQR(req.body);
+
+    // Guardar en Firestore
+    await saveContactToFirestore(req.body, qrCodeData);
     
     // Enviar correo
     await sendContactEmail(req.body, qrCodeData);
