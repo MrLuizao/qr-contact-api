@@ -23,7 +23,6 @@ admin.initializeApp({
 });
 const db = admin.firestore();
 
-
 // Configuración de transporte de email
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -37,9 +36,9 @@ const transporter = nodemailer.createTransport({
 
 // Generar código QR
 async function generateContactQR(contactId) {
-  // Generar la URL de QR usando el ID del registro ya guardado
-  const qrUrl = `https://expo-details.web.app/details/${contactId}`;
-  // const qrUrl = `http://localhost:4200/details/${contactId}`;
+
+  const qrUrl = `https://expo-details.web.app/details/${contactId}`; //PROD
+  // const qrUrl = `http://localhost:4200/details/${contactId}`; //LOCAL
 
   // Generar código QR con la URL
   const qrCodeData = await QRCode.toDataURL(qrUrl, { 
@@ -49,12 +48,6 @@ async function generateContactQR(contactId) {
 
   return qrCodeData;
 }
-// async function generateContactQR(contactData) {
-//   const { empresa, contacto, telefono, email } = contactData;
-//   const qrText = `Empresa: ${empresa}\nContacto: ${contacto}\nTeléfono: ${telefono}\nEmail: ${email}`;
-  
-//   return await QRCode.toDataURL(qrText);
-// }
 
 // Verificar si el correo ya existe
 async function isEmailRegistered(email) {
@@ -65,8 +58,7 @@ async function isEmailRegistered(email) {
   return !snapshot.empty; // Devuelve `true` si hay resultados
 }
 
-// Guardar contacto en Firestore con validación
-// Modificar saveContactToFirestore para devolver el ID
+// Guardar contacto en Firestore con validación y para devolver el ID
 async function saveContactToFirestore(contactData) {
   const { empresa, contacto, telefono, email } = contactData;
    
@@ -95,37 +87,8 @@ async function saveContactToFirestore(contactData) {
     contactId: docRef.id  // Devolver el ID del documento
   };
 }
-// async function saveContactToFirestore(contactData, qrCodeData) {
-//   const { empresa, contacto, telefono, email } = contactData;
-
-//   // Verificar si el correo ya existe
-//   const emailExists = await isEmailRegistered(email);
-//   if (emailExists) {
-//     return {
-//       success: false,
-//       message: `El correo ${email} ya está registrado.`,
-//     };
-//   }
-
-//   // Si no existe, guarda los datos
-//   const docRef = db.collection('registered-users').doc();
-//   await docRef.set({
-//     empresa,
-//     contacto,
-//     telefono,
-//     email,
-//     qrCodeData,
-//     createdAt: admin.firestore.FieldValue.serverTimestamp(),
-//   });
-
-//   return {
-//     success: true,
-//     message: 'Contacto guardado exitosamente.',
-//   };
-// }
 
 // Enviar correo electrónico
-
 async function sendContactEmail(contactData, qrCodeData) {
   const { empresa, contacto, telefono, email } = contactData;
 

@@ -6,10 +6,9 @@ const {
 } = require('../controllers/contactController');
 
 const router = express.Router();
-const admin = require('firebase-admin');
-const db = admin.firestore();
 
 router.post('/contact', async (req, res) => {
+
   const { empresa, contacto, telefono, email } = req.body;
 
   // Validar campos requeridos
@@ -29,13 +28,6 @@ router.post('/contact', async (req, res) => {
     // Generar QR usando el ID del registro recién creado
     const qrCodeData = await generateContactQR(saveResult.contactId);
 
-     // Actualizar el registro con el QR
-
-    //  await db.collection('registered-users').doc(saveResult.contactId).update({
-    //    qrCodeData
-    //  });
-
-
     // Enviar correo
     await sendContactEmail(req.body, qrCodeData);
 
@@ -44,6 +36,7 @@ router.post('/contact', async (req, res) => {
       qrCode: qrCodeData,
       contactId: saveResult.contactId
     });
+    
   } catch (error) {
     console.error('Error en el proceso:', error);
     res.status(500).json({
@@ -51,31 +44,6 @@ router.post('/contact', async (req, res) => {
       error: error.message
     });
   }
-
-  // try {
-  //   // Generar QR
-  //   const qrCodeData = await generateContactQR(req.body);
-
-  //   // Guardar los datos en Firestore
-  //   const saveResult = await saveContactToFirestore(req.body, qrCodeData);
-  //   if (!saveResult.success) {
-  //     return res.status(400).json({ message: saveResult.message });
-  //   }
-
-  //   // Enviar correo
-  //   await sendContactEmail(req.body, qrCodeData);
-
-  //   res.status(200).json({ 
-  //     message: 'Pronto nos pondremos en contacto', 
-  //     qrCode: qrCodeData 
-  //   });
-  // } catch (error) {
-  //   console.error('Error en el proceso:', error);
-  //   res.status(500).json({ 
-  //     message: 'Error procesando el contacto', 
-  //     error: error.message 
-  //   });
-  // }
 
 });
 
